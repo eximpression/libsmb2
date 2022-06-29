@@ -58,7 +58,7 @@
 #include "libsmb2.h"
 #include "libsmb2-private.h"
 
-#define MAX_URL_SIZE 1024
+#define MAX_URL_SIZE 4096
 
 #include "compat.h"
 
@@ -223,10 +223,23 @@ struct smb2_url *smb2_parse_url(struct smb2_context *smb2, const char *url)
                 u->domain = strdup(ptr);
                 ptr = tmp;
         }
-        /* user */
-        if ((tmp = strchr(ptr, '@')) != NULL && strlen(tmp) > len_shared_folder) {
+        /* user & password */
+        if ((tmp = strchr(ptr, '@')) != NULL) {
                 *(tmp++) = '\0';
-                u->user = strdup(ptr);
+                char* ptr2 = ptr;
+                while(ptr2 < tmp) {
+                    if (*ptr2 == ':') {
+                        break;
+                    }
+                    ++ptr2;
+                }
+                if (ptr2 < tmp) {
+                    *(ptr2++) = '\0';
+                    u->user = strdup(ptr);
+                    u->password = strdup(ptr2);
+                } else {
+                    u->user = strdup(ptr);
+                }
                 ptr = tmp;
         }
         /* server */
