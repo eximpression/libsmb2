@@ -186,7 +186,7 @@ struct smb2_url *smb2_parse_url(struct smb2_context *smb2, const char *url)
 
         if (strncmp(url, "smb://", 6)) {
             if (strncmp(url, "smb2://", 7))  {
-                smb2_set_error(smb2, "URL does not start with 'smb2://' or 'smb2://'");
+                smb2_set_error(smb2, "URL does not start with 'smb://' or 'smb2://'");
                 return NULL;
             }
             if (strlen(url + 7) >= MAX_URL_SIZE) {
