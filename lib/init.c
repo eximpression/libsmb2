@@ -58,7 +58,7 @@
 #include "libsmb2.h"
 #include "libsmb2-private.h"
 
-#define MAX_URL_SIZE 4096
+#define MAX_URL_SIZE 2048
 
 #include "compat.h"
 
@@ -185,15 +185,24 @@ struct smb2_url *smb2_parse_url(struct smb2_context *smb2, const char *url)
         char *args;
 
         if (strncmp(url, "smb://", 6)) {
-                smb2_set_error(smb2, "URL does not start with 'smb://'");
+            if (strncmp(url, "smb2://", 7))  {
+                smb2_set_error(smb2, "URL does not start with 'smb2://' or 'smb2://'");
                 return NULL;
+            }
+            if (strlen(url + 7) >= MAX_URL_SIZE) {
+                    smb2_set_error(smb2, "URL is too long");
+                    return NULL;
+            }else{
+                strncpy(str, url + 7, MAX_URL_SIZE);
+            }
+        }else{
+            if (strlen(url + 6) >= MAX_URL_SIZE) {
+                    smb2_set_error(smb2, "URL is too long");
+                    return NULL;
+            }
+            strncpy(str, url + 6, MAX_URL_SIZE);
         }
-        if (strlen(url + 6) >= MAX_URL_SIZE) {
-                smb2_set_error(smb2, "URL is too long");
-                return NULL;
-        }
-        strncpy(str, url + 6, MAX_URL_SIZE);
-
+    
         args = strchr(str, '?');
         if (args) {
                 *(args++) = '\0';
