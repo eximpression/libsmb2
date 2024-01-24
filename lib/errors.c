@@ -1077,6 +1077,7 @@ int nterror_to_errno(uint32_t status) {
         case SMB2_STATUS_DELETE_PENDING:
         case SMB2_STATUS_REDIRECTOR_NOT_STARTED:
         case SMB2_STATUS_NOT_FOUND:
+        case SMB2_STATUS_BAD_NETWORK_PATH:
                 return ENOENT;
         case SMB2_STATUS_SMB_BAD_FID:
         case SMB2_STATUS_INVALID_HANDLE:

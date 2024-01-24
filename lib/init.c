@@ -78,7 +78,7 @@
 #include "libsmb2.h"
 #include "libsmb2-private.h"
 
-#define MAX_URL_SIZE 1024
+#define MAX_URL_SIZE 2048
 
 #include "compat.h"
 
@@ -183,8 +183,10 @@ struct smb2_url *smb2_parse_url(struct smb2_context *smb2, const char *url)
         int len_shared_folder;
 
         if (strncmp(url, "smb://", 6)) {
-                smb2_set_error(smb2, "URL does not start with 'smb://'");
+            if (strncmp(url, "smb2://", 7))  {
+                smb2_set_error(smb2, "URL does not start with 'smb://' or 'smb2://'");
                 return NULL;
+<<<<<<< HEAD
         }
         if (strlen(url + 6) >= MAX_URL_SIZE) {
                 smb2_set_error(smb2, "URL is too long");
@@ -192,6 +194,23 @@ struct smb2_url *smb2_parse_url(struct smb2_context *smb2, const char *url)
         }
         
         strncpy(str, url + 6, MAX_URL_SIZE);
+=======
+            }
+            if (strlen(url + 7) >= MAX_URL_SIZE) {
+                    smb2_set_error(smb2, "URL is too long");
+                    return NULL;
+            }else{
+                strncpy(str, url + 7, MAX_URL_SIZE);
+            }
+        }else{
+            if (strlen(url + 6) >= MAX_URL_SIZE) {
+                    smb2_set_error(smb2, "URL is too long");
+                    return NULL;
+            }
+            strncpy(str, url + 6, MAX_URL_SIZE);
+        }
+    
+>>>>>>> ex/master
         args = strchr(str, '?');
         if (args) {
                 *(args++) = '\0';
@@ -221,10 +240,30 @@ struct smb2_url *smb2_parse_url(struct smb2_context *smb2, const char *url)
                 u->domain = strdup(ptr);
                 ptr = tmp;
         }
+<<<<<<< HEAD
         /* user */
         if ((tmp = strchr(ptr, '@')) != NULL && strlen(tmp) > len_shared_folder) {
                 *(tmp++) = '\0';              
                 u->user = strdup(ptr);
+=======
+        /* user & password */
+        if ((tmp = strchr(ptr, '@')) != NULL) {
+                *(tmp++) = '\0';
+                char* ptr2 = ptr;
+                while(ptr2 < tmp) {
+                    if (*ptr2 == ':') {
+                        break;
+                    }
+                    ++ptr2;
+                }
+                if (ptr2 < tmp) {
+                    *(ptr2++) = '\0';
+                    u->user = strdup(ptr);
+                    u->password = strdup(ptr2);
+                } else {
+                    u->user = strdup(ptr);
+                }
+>>>>>>> ex/master
                 ptr = tmp;
         }
         /* server */
