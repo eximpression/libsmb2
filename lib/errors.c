@@ -30,6 +30,14 @@
 #include <sys/socket.h>
 #endif
 
+#ifdef HAVE_TIME_H
+#include <time.h>
+#endif
+
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+
 #include "compat.h"
 
 #include "smb2.h"
@@ -38,8 +46,8 @@ const char *nterror_to_str(uint32_t status) {
         switch (status) {
         case SMB2_STATUS_SUCCESS:
                 return "STATUS_SUCCESS";
-        case SMB2_STATUS_ABORTED:
-                return "STATUS_ABORTED";
+        case SMB2_STATUS_SHUTDOWN:
+                return "STATUS_SHUTDOWN";
         case SMB2_STATUS_PENDING:
                 return "STATUS_PENDING";
         case SMB2_STATUS_NO_MORE_FILES:
@@ -1064,8 +1072,8 @@ int nterror_to_errno(uint32_t status) {
                 return 0;
         case SMB2_STATUS_PENDING:
                 return EAGAIN;
-        case SMB2_STATUS_ABORTED:
-                return ECONNRESET;
+        case SMB2_STATUS_SHUTDOWN:
+                return -SMB2_STATUS_SHUTDOWN;
         case SMB2_STATUS_NO_SUCH_FILE:
         case SMB2_STATUS_NO_SUCH_DEVICE:
         case SMB2_STATUS_BAD_NETWORK_NAME:

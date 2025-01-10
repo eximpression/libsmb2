@@ -9,6 +9,24 @@
     </None>
     <None Include="..\COPYING" />
     <None Include="..\README" />
+    <None Include="..\lib\libsmb2.syms">
+      <Filter>lib</Filter>
+    </None>
+    <None Include="..\lib\Makefile.am">
+      <Filter>lib</Filter>
+    </None>
+    <None Include="..\lib\Makefile.AMIGA">
+      <Filter>lib</Filter>
+    </None>
+    <None Include="..\lib\Makefile.AMIGA_AROS">
+      <Filter>lib</Filter>
+    </None>
+    <None Include="..\lib\Makefile.AMIGA_OS3">
+      <Filter>lib</Filter>
+    </None>
+    <None Include="..\lib\Makefile.PS3_PPU">
+      <Filter>lib</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">
@@ -19,12 +37,6 @@
     </Filter>
     <Filter Include="lib">
       <UniqueIdentifier>{8f3e89d9-a92f-4650-a970-3af5fddd92fe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\msvc">
-      <UniqueIdentifier>{84dc3fac-09d1-446a-97da-fc0fee2bf6c3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\msvc\sys">
-      <UniqueIdentifier>{afbefc44-9daf-45e5-aacd-fe33021175a2}</UniqueIdentifier>
     </Filter>
     <Filter Include="include\xbox 360">
       <UniqueIdentifier>{6c01c6cd-316c-4bff-82ea-f611e60057e9}</UniqueIdentifier>
@@ -73,9 +85,6 @@
     <ClInclude Include="..\lib\hmac-md5.h">
       <Filter>lib</Filter>
     </ClInclude>
-    <ClInclude Include="..\lib\krb5-wrapper.h">
-      <Filter>lib</Filter>
-    </ClInclude>
     <ClInclude Include="..\lib\md4.h">
       <Filter>lib</Filter>
     </ClInclude>
@@ -100,14 +109,11 @@
     <ClInclude Include="..\include\asprintf.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\msvc\poll.h">
-      <Filter>include\msvc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\msvc\sys\socket.h">
-      <Filter>include\msvc\sys</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\xbox 360\config.h">
       <Filter>include\xbox 360</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\asn1-ber.h">
+      <Filter>lib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -121,9 +127,6 @@
       <Filter>lib</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\compat.c">
-      <Filter>lib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lib\dcerpc.c">
       <Filter>lib</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\dcerpc-lsa.c">
@@ -144,9 +147,6 @@
     <ClCompile Include="..\lib\init.c">
       <Filter>lib</Filter>
     </ClCompile>
-    <ClCompile Include="..\lib\krb5-wrapper.c">
-      <Filter>lib</Filter>
-    </ClCompile>
     <ClCompile Include="..\lib\libsmb2.c">
       <Filter>lib</Filter>
     </ClCompile>
@@ -160,9 +160,6 @@
       <Filter>lib</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\pdu.c">
-      <Filter>lib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lib\sha1.c">
       <Filter>lib</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\sha224-256.c">
@@ -253,6 +250,18 @@
       <Filter>lib</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\usha.c">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\asn1-ber.c">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\sha1.c">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\smb2-cmd-lock.c">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\smb2-cmd-notify-change.c">
       <Filter>lib</Filter>
     </ClCompile>
   </ItemGroup>

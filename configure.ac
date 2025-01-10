@@ -1,6 +1,6 @@
-AC_INIT([libsmb2], [4.0.0], [ronniesahlberg@gmail.com])
+AC_INIT([libsmb2],[6.1.0],[ronniesahlberg@gmail.com])
 
-AC_PREREQ([2.58])
+AC_PREREQ([2.71])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([-Wall foreign subdir-objects 1.11])
 AC_CANONICAL_HOST
@@ -11,7 +11,7 @@ m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 dnl  Do not add default CFLAGS in AC_PROG_CC
 : ${CFLAGS=""}
 AC_PROG_CC
-AC_PROG_LIBTOOL
+LT_INIT
 
 AM_PROG_CC_C_O
 
@@ -111,6 +111,9 @@ AC_CHECK_HEADERS([sys/socket.h])
 dnl  Check for sys/uio.h
 AC_CHECK_HEADERS([sys/uio.h])
 
+dnl  Check for sys/_iovec.h
+AC_CHECK_HEADERS([sys/_iovec.h])
+
 dnl  Check for netinet/tcp.h
 AC_CHECK_HEADERS([netinet/tcp.h])
 
@@ -157,12 +160,23 @@ AC_CHECK_MEMBER([struct sockaddr_storage.ss_family], [
 #include <sys/socket.h>
 ])
 
+dnl  Check if sockaddr_storage struct includes a "l_linger"
+AC_CHECK_MEMBER([struct linger.l_linger], [
+    AC_DEFINE([HAVE_LINGER], [1], [Whether we have linger])
+], [], [
+#include <sys/types.h>
+#include <sys/socket.h>
+])
+
 dnl  Output
 AC_CONFIG_FILES([
     Makefile
     examples/Makefile
     include/Makefile
     lib/Makefile
+    tests/Makefile
+    utils/Makefile
 ])
 
-AC_OUTPUT([libsmb2.pc])
+AC_CONFIG_FILES([libsmb2.pc])
+AC_OUTPUT

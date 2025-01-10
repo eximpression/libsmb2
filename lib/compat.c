@@ -18,47 +18,57 @@
 
 #include "compat.h"
 
-#if defined(_MSC_VER) && defined(_WINDOWS)
+#if defined(_WINDOWS) || defined(_XBOX)
 #include <errno.h>
-#include <Windows.h>
 #include <stdlib.h>
-#define NEED_GETLOGIN_R
-#define NEED_GETPID
-#define NEED_RANDOM
-#define NEED_SRANDOM
+
+#ifdef _WINDOWS
 #define login_num ENXIO
-#define getpid_num GetCurrentProcessId
-#define smb2_random rand
-#define smb2_srandom srand
-#endif
-
-#if defined(_MSC_VER) && defined(_XBOX)
+#define getpid_num() GetCurrentProcessId()
+#else
 #define login_num 0
-#define getpid_num 0
-#include <stdlib.h>
+#define getpid_num() 0	
+#endif
 #define smb2_random rand
 #define smb2_srandom srand
+
+#ifdef _XBOX
+int gethostname(char *name, size_t len)
+{
+#ifdef XBOX_PLATFORM
+	    strncpy(name, "XBOX", len);
+#else
+        strncpy(name, "XBOX_360", len);
+#endif
+		return 0;
+}
 #endif
 
-#ifdef DC_KOS_PLATFORM
+#endif
+
+#ifdef __DREAMCAST__
+#include <stdlib.h>
+#include <string.h>
+#include <sys/errno.h>
 #define login_num ENXIO
 #endif
 
 #ifdef ESP_PLATFORM
-
-#define NEED_READV
-#define NEED_WRITEV
 
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <lwip/sockets.h>
 #include <sys/uio.h>
+#include <errno.h>
+
+#define login_num ENXIO
+#define smb2_random esp_random
+#define smb2_srandom(seed)
 
 #endif
 
 #if defined(__amigaos4__) || defined(__AMIGA__) || defined(__AROS__)
-#define login_num ENXIO
 #ifndef __amigaos4__
 #define NEED_READV
 #define NEED_WRITEV
@@ -67,8 +77,6 @@
 #define write(fd, buf, count) send(fd, buf, count, 0)
 #ifndef __AROS__
 #define select(nfds, readfds, writefds, exceptfds, timeout) WaitSelect(nfds, readfds, writefds, exceptfds, timeout, NULL)
-#define smb2_random rand
-#define smb2_srandom srand
 #endif
 #ifdef libnix
 StdFileDes *_lx_fhfromfd(int d) { return NULL; }
@@ -76,18 +84,15 @@ struct MinList __filelist = { (struct MinNode *) &__filelist.mlh_Tail, NULL, (st
 #endif
 #endif
 
+#define login_num ENXIO
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <proto/exec.h>
 
 #endif
 
 #ifdef PICO_PLATFORM
-
-#define NEED_BE64TOH
-#define NEED_POLL
-#define NEED_GETLOGIN_R
 
 #include "lwip/def.h"
 #include <unistd.h>
@@ -97,34 +102,34 @@ struct MinList __filelist = { (struct MinNode *) &__filelist.mlh_Tail, NULL, (st
 
 #endif /* PICO_PLATFORM */
 
-#ifdef PS2_EE_PLATFORM
+#ifdef __PS2__
 
+#ifdef _EE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
 #include <sys/time.h>
-#ifdef PS2IPS
-#include <ps2ips.h>
 #else
-#include <ps2ip.h>
-#endif
-#include <errno.h>
-
-#define login_num ENXIO
-#endif /* PS2_EE_PLATFORM */
-
-#ifdef PS2_IOP_PLATFORM
 #include <sysclib.h>
 #include <thbase.h>
 #include <stdio.h>
 #include <stdarg.h>
+#endif
 #include <errno.h>
 
 #define login_num ENXIO
-#define getpid_num 27
+
+#ifdef _IOP
+#define getpid_num() 27
 
 static unsigned long int next = 1; 
+
+int gethostname(char *name, size_t len)
+{
+        strncpy(name, "PS2", len);
+        return 0;
+}
 
 time_t time(time_t *tloc)
 {
@@ -169,24 +174,17 @@ int iop_connect(int sockfd, struct sockaddr *addr, socklen_t addrlen)
         return rc;
 }
 
-#endif /* PS2_IOP_PLATFORM */
+#endif
+
+#endif /* __PS2__ */
 
 #ifdef __ANDROID__
 /* getlogin_r() was added in API 28 */
 #if __ANDROID_API__ < 28
-#define NEED_GETLOGIN_R
-#define login_num ENXIO
-#endif
-#endif
-
-#ifdef ESP_PLATFORM
 #include <errno.h>
 #define NEED_GETLOGIN_R
-#define NEED_RANDOM
-#define NEED_SRANDOM
 #define login_num ENXIO
-#define smb2_random esp_random
-#define smb2_srandom(seed)
+#endif
 #endif
 
 #ifdef PS3_PPU_PLATFORM
@@ -201,6 +199,60 @@ int iop_connect(int sockfd, struct sockaddr *addr, socklen_t addrlen)
 #define smb2_srandom srand
 
 #endif /* PS3_PPU_PLATFORM */
+
+#ifdef __vita__
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+
+#define login_num ENXIO
+
+#endif
+
+#if defined(__SWITCH__) || defined(__3DS__) || defined(__WII__) || defined(__GC__) || defined(__WIIU__) || defined(__NDS__)
+
+#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <alloca.h>
+#include <stdio.h>
+#if !defined(__WII__) && !defined(__GC__)
+#include <sys/socket.h>
+#endif
+#if defined(__NDS__)
+#include <netinet/in.h>
+#endif
+#if defined(__SWITCH__)
+#include <switch/types.h>
+#elif defined(__3DS__)
+#include <3ds/types.h>	
+#elif defined(__WII__) || defined(__GC__)
+#include <gctypes.h>
+#elif defined(__WIIU__)
+#include <wut_types.h>
+#elif defined(__NDS__)
+#include <mm_types.h>
+#endif
+
+#define login_num ENXIO
+
+#if defined(__WII__) || defined(__GC__)
+s32 getsockopt(int sockfd, int level, int optname, void *optval,
+socklen_t *optlen)
+{
+#ifdef __GC__
+         return net_getsockopt(sockfd, level, optname, optval, (socklen_t)optlen);
+#else
+	 return 0;
+#endif
+
+
+}
+#endif
+
+#endif /* __SWITCH__ */
 
 #ifdef NEED_GETADDRINFO
 int smb2_getaddrinfo(const char *node, const char*service,
@@ -218,10 +270,10 @@ int smb2_getaddrinfo(const char *node, const char*service,
 #else
         sin = malloc(sizeof(struct sockaddr_in));
 #endif
-#ifndef _XBOX
+#if !defined(_XBOX) && !defined(__NDS__) && !defined(__USE_WINSOCK__)
         sin->sin_len = sizeof(struct sockaddr_in);
 #endif
-		sin->sin_family=AF_INET;
+        sin->sin_family=AF_INET;
 
 #if defined(__amigaos4__) || defined(__AMIGA__) || defined(__AROS__)
         /* Some error checking would be nice */
@@ -256,6 +308,7 @@ int smb2_getaddrinfo(const char *node, const char*service,
         } 
 
         *res = malloc(sizeof(struct addrinfo));
+        memset(*res, 0, sizeof(struct addrinfo));
 #endif
         (*res)->ai_family = AF_INET;
         (*res)->ai_addrlen = sizeof(struct sockaddr_in);
@@ -280,7 +333,7 @@ long random(void)
 int random(void)
 #endif
 { 
-#ifdef PS2_IOP_PLATFORM
+#ifdef _IOP
     next = next * 1103515245 + 12345; 
     return (unsigned int)(next/65536) % 32768; 
 #else
@@ -292,7 +345,7 @@ int random(void)
 #ifdef NEED_SRANDOM
 void srandom(unsigned int seed) 
 { 
-#ifdef PS2_IOP_PLATFORM
+#ifdef _IOP
     next = seed; 
 #else
     smb2_srandom(seed);
@@ -303,7 +356,7 @@ void srandom(unsigned int seed)
 #ifdef NEED_GETPID
 int getpid()
 {
-     return getpid_num;
+     return getpid_num();
 };
 #endif
 
@@ -315,7 +368,7 @@ int getlogin_r(char *buf, size_t size)
 #endif
 
 #ifdef NEED_WRITEV
-ssize_t writev(int fd, const struct iovec *vector, int count)
+ssize_t writev(t_socket fd, const struct iovec* vector, int count)
 {
         /* Find the total number of bytes to be written.  */
         size_t bytes = 0;
@@ -323,8 +376,7 @@ ssize_t writev(int fd, const struct iovec *vector, int count)
         char *buffer;
         size_t to_copy;
         char *bp;
-		ssize_t bytes_written;
-
+	ssize_t bytes_written;
         for (i = 0; i < count; ++i) {
                 /* Check for ssize_t overflow.  */
                 if (((ssize_t)-1) - bytes < vector[i].iov_len) {
@@ -339,7 +391,6 @@ ssize_t writev(int fd, const struct iovec *vector, int count)
                 /* XXX I don't know whether it is acceptable to try writing
                 the data in chunks.  Probably not so we just fail here.  */
                 return -1;
-
         /* Copy the data into BUFFER.  */
         to_copy = bytes;
         bp = buffer;
@@ -347,22 +398,21 @@ ssize_t writev(int fd, const struct iovec *vector, int count)
                 size_t copy = (vector[i].iov_len < to_copy) ? vector[i].iov_len : to_copy;
 
                 memcpy((void *)bp, (void *)vector[i].iov_base, copy);
+                
+		bp += copy;
 
-                bp += copy;
                 to_copy -= copy;
                 if (to_copy == 0)
                         break;
         }
-
-        bytes_written = write(fd, buffer, bytes);
-
+        bytes_written = write((int)fd, buffer, bytes);
         free(buffer);
         return bytes_written;
 }
 #endif
 
 #ifdef NEED_READV
-ssize_t readv (int fd, const struct iovec *vector, int count)
+ssize_t readv(t_socket fd, const struct iovec* vector, int count)
 {
         /* Find the total number of bytes to be read.  */
         size_t bytes = 0;
@@ -370,7 +420,6 @@ ssize_t readv (int fd, const struct iovec *vector, int count)
         char *buffer;
         ssize_t bytes_read;
         char *bp;
-
         for (i = 0; i < count; ++i)
         {
                 /* Check for ssize_t overflow.  */
@@ -380,13 +429,12 @@ ssize_t readv (int fd, const struct iovec *vector, int count)
                 }
                 bytes += vector[i].iov_len;
         }
-
         buffer = (char *)malloc(bytes);
         if (buffer == NULL)
                 return -1;
 
         /* Read the data.  */
-        bytes_read = read(fd, buffer, bytes);
+        bytes_read = read((int)fd, buffer, bytes);
         if (bytes_read < 0) {
                 free(buffer);
                 return -1;
@@ -394,17 +442,16 @@ ssize_t readv (int fd, const struct iovec *vector, int count)
 
         /* Copy the data from BUFFER into the memory specified by VECTOR.  */
         bytes = bytes_read;
-        bp = buffer;
+	bp = buffer;
         for (i = 0; i < count; ++i) {
-                size_t copy = (vector[i].iov_len < bytes) ? vector[i].iov_len : bytes;
+            size_t copy = (vector[i].iov_len < bytes) ? vector[i].iov_len : bytes;
 
-                memcpy((void *)vector[i].iov_base, (void *)bp, copy);
-
-                bp += copy;
-                bytes -= copy;
-                if (bytes == 0)
-                        break;
-        }
+            memcpy((void *)vector[i].iov_base, (void *)bp, copy);	
+	    bp += copy;
+	    bytes -= copy;
+	    if (bytes == 0)
+	    break;
+	}
 
         free(buffer);
         return bytes_read;
@@ -427,7 +474,7 @@ int poll(struct pollfd *fds, unsigned int nfds, int timo)
         for (i = 0; i < nfds; ++i) {
                 int fd = fds[i].fd;
                 fds[i].revents = 0;
-                if (fd < 0)
+                if (!SMB2_VALID_SOCKET(fd))
                         continue;
                 if(fds[i].events & (POLLIN|POLLPRI)) {
                         ip = &ifds;
@@ -454,9 +501,9 @@ int poll(struct pollfd *fds, unsigned int nfds, int timo)
                         FD_SET(fds[i].fd, op);
                 }
                 FD_SET(fds[i].fd, &efds);
-                if (fds[i].fd > maxfd) {
-                        maxfd = fds[i].fd;
-                }
+                if (fds[i].fd > (int)maxfd) {
+                    maxfd = fds[i].fd;
+		}
         } 
 #endif
 
@@ -471,21 +518,11 @@ int poll(struct pollfd *fds, unsigned int nfds, int timo)
         if(timo < 0) {
                 toptr = NULL;
         } else {
-#if defined(PS2_EE_PLATFORM) && defined(PS2IPS)                
-                /*
-                 * select() is broken on the ps2ips stack so we basically have
-                 * to busy-wait.
-                 */
-                (void)timeout;
-                timeout.tv_sec = 0;
-                timeout.tv_usec = 10000;        
-#else
                 toptr = &timeout;
                 timeout.tv_sec = timo / 1000;
-                timeout.tv_usec = (timo - timeout.tv_sec * 1000) * 1000;
-#endif        
-#endif
+                timeout.tv_usec = (timo - timeout.tv_sec * 1000) * 1000;       
         }
+#endif
 
         rc = select(maxfd + 1, ip, op, &efds, toptr);
 
@@ -498,7 +535,7 @@ int poll(struct pollfd *fds, unsigned int nfds, int timo)
                 int fd = fds[i].fd;
                 short events = fds[i].events;
                 short revents = 0;
-                if (fd < 0)
+                if (!SMB2_VALID_SOCKET(fd))
                         continue;
                 if(events & (POLLIN|POLLPRI) && FD_ISSET(fd, &ifds))
                         revents |= POLLIN;
@@ -537,9 +574,9 @@ char *strdup(const char *s)
         len = strlen(s) + 1;
         str = malloc(len);
         if (str == NULL) {
-#ifndef PS2_IOP_PLATFORM
+#ifndef _IOP
                 errno = ENOMEM;
-#endif /* !PS2_IOP_PLATFORM */
+#endif /* !_IOP */
                 return NULL;
         }
         memcpy(str, s, len + 1);

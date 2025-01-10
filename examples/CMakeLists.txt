@@ -4,7 +4,6 @@ set(SOURCES smb2-cat-async
             smb2-cat-sync
             smb2-ftruncate-sync
             smb2-ls-async
-            smb2-ls-sync
             smb2-put-async
             smb2-put-sync
             smb2-raw-stat-async
@@ -16,7 +15,9 @@ set(SOURCES smb2-cat-async
             smb2-share-info
             smb2-stat-sync
             smb2-truncate-sync
-            smb2-CMD-FIND)
+            smb2-CMD-FIND
+            smb2-server-sync
+            smb2-notify)
 
 foreach(TARGET ${SOURCES})
   add_executable(${TARGET} ${TARGET}.c)
